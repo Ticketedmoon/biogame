@@ -1,0 +1,10 @@
+POST {{HostAddress}}/todoitems
+Content-Type: application/json
+
+{
+  "id": 1,
+  "name": "Listen to Rocket League podcast [in-progress]",
+  "is_complete": true
+}
+
+###
