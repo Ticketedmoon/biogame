@@ -4,60 +4,87 @@
 
 @section scripts{
 <script type="text/javascript">
-$(function()
-{
-        $.getJSON('http://localhost:5003/todoitems', (res) =>
-        {
-            if (res.length === 0) {
+
+// On load
+const loadTable = () => {
+    fetch("http://localhost:5003/todoitems")
+        .then((response) => response.json())
+        .then((json) => {
+
+            if (json.length === 0) {
                 return
             }
+
+            const tableContainer = document.getElementById("table-container");
+            tableContainer.innerHTML = "";
+
+            const tableIdentifier = "todo-list";
+            const table = document.createElement("table");
+            table.setAttribute("id", tableIdentifier);
+
+            tableContainer.appendChild(table);
+
+            const tableHeader = table.createTHead();
+            const tableHeaderRow = tableHeader.insertRow(0)
+            const headers = ["id", "description", "completion status"]
             
-            var listHeaders = `
-            <tr>
-                <th>id</th>
-                <th>description</th>
-                <th>completion status</th>
-            </tr>`
-            $('#todo-list').append(listHeaders);
-            
-            $(res).each((i, item) => 
-            {
-                var listItem = `<tr>
-                    <td>${item.id}</td>
-                    <td>${item.name}</td>
-                    <td>${item.is_complete}</td>
-                </tr>`
-                $('#todo-list').append(listItem);
+            headers.forEach((value, index) => {
+                const cell = tableHeaderRow.insertCell(index);
+                cell.innerHTML = `<b>${value}</b>`;
+            })
+
+            const tableBody = table.createTBody();
+
+            json.forEach((item, i) => {
+                const newRow = tableBody.insertRow();
+                newRow.insertCell().append(item.id);
+                newRow.insertCell().append(item.name);
+                newRow.insertCell().append(item.is_complete);
             });
         });
-});
+}
+
+const handleNewTodoItemSubmission = () => {
+
+    const todoTextAreaId = "new-todo-list-item-text-area-1"
+    
+    const e = document.getElementById(todoTextAreaId)
+    
+    fetch("http://localhost:5003/todoitems", {
+        method: "POST",
+        body: JSON.stringify(e.value),
+        headers: {
+            "Content-type": "application/json; charset=UTF-8"
+        }
+    }).then(() => loadTable());
+}
+
+window.onload = () => {
+    loadTable()
+}
+
 </script>
 }
 
 <div class="text-center">
-    <h2 class="display-4">Welcome to the GillyCreed Todo List</h2>
+    <h2 class="display-4">Todo List</h2>
     <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    <p>Redirect to Test endpoint: <a href="/test">Click!</a></p>
     
     <hr/>
     
     <div class="todo-list-management-container">
         <div>
-            <form action="/action_page.php">
-                <p>Add a new Todo Item: </p>
-                <textarea id="new-todo-list-item-text-area-1"
-                          name="text area for accepting new todo list items"
-                          rows="3"
-                          cols="50"></textarea>
-                <br>
-                <input type="submit" value="Submit">
-            </form>
+            <p>Add a new Todo Item: </p>
+            <textarea id="new-todo-list-item-text-area-1"
+                      name="todoTextArea"
+                      rows="3"
+                      cols="50"></textarea>
+            <br>
+            <button type="button" onclick="handleNewTodoItemSubmission()"> Add Item </button>
         </div>
         <div class="todo-list-divider">
             <hr/>
         </div>
-        <div>
-            <table id="todo-list"/>
-        </div>
+        <div id="table-container"/>
     </div>
 </div>

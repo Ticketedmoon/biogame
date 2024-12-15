@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 using src.Models;
 
@@ -77,8 +78,14 @@ static async Task<IResult> GetTodo(int id, TodoDb db)
             : TypedResults.NotFound();
 }
 
-static async Task<IResult> CreateTodo(Todo todo, TodoDb db)
+static async Task<IResult> CreateTodo(string? queryKey, [FromBody] string body, TodoDb db)
 {
+	int latestTodoItemId = db.Todos.Count() > 0 
+		? db.Todos.Max(todo => todo.Id)
+		: 0;
+
+	Todo todo = new Todo(latestTodoItemId + 1, body, false);
+
     db.Todos.Add(todo);
     await db.SaveChangesAsync();
 
