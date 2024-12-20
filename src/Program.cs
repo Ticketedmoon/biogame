@@ -12,8 +12,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using src.Models;
+using Microsoft.AspNetCore.Routing;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -24,12 +25,12 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<TodoDb>(opt => opt.UseInMemoryDatabase("TodoList"));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-	Console.WriteLine("Development mode active");
+    Console.WriteLine("Development mode active");
 }
 else
 {
@@ -49,7 +50,7 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 // TODO: Can be use dedicated types rather than var
-var todoItems = app.MapGroup("/todoitems");
+RouteGroupBuilder todoItems = app.MapGroup("/todoitems");
 todoItems.MapGet("/", GetAllTodos);
 todoItems.MapGet("/complete", GetCompleteTodos);
 todoItems.MapGet("/{id}", GetTodo);
@@ -80,11 +81,11 @@ static async Task<IResult> GetTodo(int id, TodoDb db)
 
 static async Task<IResult> CreateTodo(string? queryKey, [FromBody] string body, TodoDb db)
 {
-	int latestTodoItemId = db.Todos.Count() > 0 
-		? db.Todos.Max(todo => todo.Id)
-		: 0;
+    int latestTodoItemId = db.Todos.Any()
+        ? db.Todos.Max(todo => todo.Id)
+        : 0;
 
-	Todo todo = new Todo(latestTodoItemId + 1, body, false);
+    Todo todo = new(latestTodoItemId + 1, body, false);
 
     db.Todos.Add(todo);
     await db.SaveChangesAsync();

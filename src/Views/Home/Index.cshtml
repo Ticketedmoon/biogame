@@ -37,9 +37,19 @@ const loadTable = () => {
 
             json.forEach((item, i) => {
                 const newRow = tableBody.insertRow();
+
+                // TODO: issue not fully resolved, We don't want escaped version displayed on ui
+                const item_description = "'" + item.name
+                    .replace(/[\""]/g, '\\"')
+                    .replace(/[\'']/g, "\\'")
+                     + "'";
+
                 newRow.insertCell().append(item.id);
-                newRow.insertCell().append(item.name);
+                newRow.insertCell().append(item_description);
                 newRow.insertCell().append(item.is_complete);
+                
+                const cell = newRow.insertCell();
+                cell.innerHTML = `<button onclick="markTodoItemCompleted(${item.id}, ${item_description})">Mark Completed</button>`;
             });
         });
 }
@@ -49,10 +59,27 @@ const handleNewTodoItemSubmission = () => {
     const todoTextAreaId = "new-todo-list-item-text-area-1"
     
     const e = document.getElementById(todoTextAreaId)
+
+    if (!e.value)
+    {
+        alert("No todo item text was entered");
+        return;
+    }
     
     fetch("http://localhost:5003/todoitems", {
         method: "POST",
         body: JSON.stringify(e.value),
+        headers: {
+            "Content-type": "application/json; charset=UTF-8"
+        }
+    }).then(() => loadTable());
+}
+
+const markTodoItemCompleted = (id, name) => {
+
+    fetch(`http://localhost:5003/todoitems/${id}`, {
+        method: "PUT",
+        body: JSON.stringify({id, name, is_complete: true}) ,
         headers: {
             "Content-type": "application/json; charset=UTF-8"
         }

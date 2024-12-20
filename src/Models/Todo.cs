@@ -2,19 +2,12 @@ namespace src.Models;
 
 using System.Text.Json.Serialization;
 
-public class Todo
+public class Todo(int Id, string Name, bool IsComplete)
 {
     [JsonPropertyName("id")]
-    public int Id { get; set; }
+    public int Id { get; set; } = Id;
     [JsonPropertyName("name")]
-    public string? Name { get; set; }
+    public string? Name { get; set; } = Name;
     [JsonPropertyName("is_complete")]
-    public bool IsComplete { get; set; }
-
-    public Todo(int Id, string Name, bool IsComplete)
-    {
-        this.Id = Id;
-        this.Name = Name;
-        this.IsComplete = IsComplete;
-    }
+    public bool IsComplete { get; set; } = IsComplete;
 }

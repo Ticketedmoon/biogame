@@ -2,9 +2,7 @@ namespace src.Models;
 
 using Microsoft.EntityFrameworkCore;
 
-class TodoDb : DbContext
+class TodoDb(DbContextOptions<TodoDb> options) : DbContext(options)
 {
-    public TodoDb(DbContextOptions<TodoDb> options) : base(options) { }
-
     public DbSet<Todo> Todos => Set<Todo>();
 }
